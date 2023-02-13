@@ -1,5 +1,7 @@
 # my-api-products-go
 
+## API Rest CRUD para productos con sus nombres y precios
+
 Los punto de entrada de la API son:
 
 - http://localhost:3000/ Root
