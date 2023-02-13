@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 var productsDB = "./productsdb.json"
@@ -15,15 +16,43 @@ func HandleRoot(w http.ResponseWriter, r *http.Request) {
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
 
-	bytes, err := os.ReadFile(productsDB)
+	if r.URL.Query().Get("id") == "" {
+
+		bytes, err := os.ReadFile(productsDB)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Println(err)
+			return
+		}
+		w.Header().Set("content-type", "application/json")
+		w.Write(bytes)
+	} else {
+		GetProduct(w, r)
+	}
+}
+
+func GetProduct(w http.ResponseWriter, r *http.Request) {
+
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(id)
+	products, err := DecodeJSONfile(productsDB)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
 		return
 	}
-	w.Header().Set("content-type", "application/json")
-	w.Write(bytes)
-
+	for _, product := range products {
+		if product.ID == id {
+			w.Header().Set("content-type", "application/json")
+			json.NewEncoder(w).Encode(product)
+			return
+		}
+	}
 }
 
 func PostProducts(w http.ResponseWriter, r *http.Request) {
