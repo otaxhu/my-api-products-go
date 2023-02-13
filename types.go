@@ -25,8 +25,9 @@ func DecodeJSONfile(path string) ([]Products, error) {
 	return data, nil
 }
 
+// Funcion muy dificil de mantener ya que la base de datos puede cambiar de lugar
 func NextID() (int, error) {
-	productsDB := "./prueba-03-api-products/productsdb.json"
+	productsDB := "./productsdb.json"
 	data, err := DecodeJSONfile(productsDB)
 	if err != nil {
 		return 0, err

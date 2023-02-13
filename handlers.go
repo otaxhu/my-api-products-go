@@ -7,41 +7,26 @@ import (
 	"os"
 )
 
+var productsDB = "./productsdb.json"
+
 func HandleRoot(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Esta es la raiz =)")
 }
 
 func GetProducts(w http.ResponseWriter, r *http.Request) {
-	productsDB := "./prueba-03-api-products/productsdb.json"
-	//file, err1 := os.Open("")
-	/*
-		if err1 != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-			fmt.Println(err1)
-			return
-		}
-	*/
-	//defer file.Close()
+
 	bytes, err := os.ReadFile(productsDB)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
 		return
 	}
-	var products []Products
-	err = json.Unmarshal(bytes, &products)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
-		return
-	}
-	for _, product := range products {
-		fmt.Fprintf(w, "ID: %d\nNombre: %s\nPrecio: %d\n", product.ID, product.Name, product.Price)
-	}
+	w.Header().Set("content-type", "application/json")
+	w.Write(bytes)
+
 }
 
 func PostProducts(w http.ResponseWriter, r *http.Request) {
-	productsDB := "./prueba-03-api-products/productsdb.json"
 
 	var product Products
 	err := json.NewDecoder(r.Body).Decode(&product)
@@ -54,16 +39,9 @@ func PostProducts(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
-	}
-	bytes, err := os.ReadFile(productsDB)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
 		return
 	}
-	var products []Products
-
-	err = json.Unmarshal(bytes, &products)
+	products, err := DecodeJSONfile(productsDB)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err)
@@ -88,7 +66,7 @@ func PostProducts(w http.ResponseWriter, r *http.Request) {
 }
 
 func PutProductByID(w http.ResponseWriter, r *http.Request) {
-	productsDB := "./prueba-03-api-products/productsdb.json"
+
 	var updatedProduct Products
 	err := json.NewDecoder(r.Body).Decode(&updatedProduct)
 	if err != nil {
@@ -133,7 +111,7 @@ func PutProductByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteProductByID(w http.ResponseWriter, r *http.Request) {
-	productsDB := "./prueba-03-api-products/productsdb.json"
+
 	var deletedProduct Products
 	err := json.NewDecoder(r.Body).Decode(&deletedProduct)
 	if err != nil {
